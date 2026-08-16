@@ -8,6 +8,20 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { WebBadge } from '@/components/web-badge';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { CDPHooksProvider } from "@coinbase/cdp-hooks";
+
+import structuredClone from "@ungap/structured-clone";
+
+import "react-native-get-random-values";
+import { install } from "react-native-quick-crypto";
+
+// Install crypto polyfills
+if (!("structuredClone" in globalThis)) {
+  globalThis.structuredClone = structuredClone as typeof globalThis.structuredClone;
+}
+
+install(); // Install react-native-quick-crypto
+
 
 function getDevMenuHint() {
   if (Platform.OS === 'web') {
@@ -29,8 +43,13 @@ function getDevMenuHint() {
 }
 
 export default function HomeScreen() {
+  const projectId = process.env.coinbase_cdp_project_id ?? '';
+
   return (
-    <ThemedView style={styles.container}>
+    <CDPHooksProvider config={{
+      projectId,
+    }}>
+      <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.heroSection}>
           <AnimatedIcon />
@@ -58,6 +77,7 @@ export default function HomeScreen() {
         {Platform.OS === 'web' && <WebBadge />}
       </SafeAreaView>
     </ThemedView>
+    </CDPHooksProvider>
   );
 }
 
