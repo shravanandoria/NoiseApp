@@ -12,15 +12,19 @@ import { CDPHooksProvider } from "@coinbase/cdp-hooks";
 
 import structuredClone from "@ungap/structured-clone";
 
-import "react-native-get-random-values";
-import { install } from "react-native-quick-crypto";
-
 // Install crypto polyfills
 if (!("structuredClone" in globalThis)) {
   globalThis.structuredClone = structuredClone as typeof globalThis.structuredClone;
 }
 
-install(); // Install react-native-quick-crypto
+// react-native-quick-crypto / react-native-get-random-values are native (JSI) modules
+// with no web implementation; browsers already provide crypto.getRandomValues/crypto.subtle.
+// Static `import` would evaluate their native module lookups unconditionally (crashing on
+// web), so pull them in with a guarded `require` instead.
+if (Platform.OS !== 'web') {
+  require('react-native-get-random-values');
+  require('react-native-quick-crypto').install();
+}
 
 
 function getDevMenuHint() {
@@ -43,7 +47,7 @@ function getDevMenuHint() {
 }
 
 export default function HomeScreen() {
-  const projectId = process.env.coinbase_cdp_project_id ?? '';
+  const projectId = process.env.coinbase_cdp_project_id ?? "";
 
   return (
     <CDPHooksProvider config={{
