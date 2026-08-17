@@ -47,7 +47,7 @@ function getDevMenuHint() {
 }
 
 export default function HomeScreen() {
-  const projectId = process.env.coinbase_cdp_project_id ?? "";
+  const projectId = process.env.EXPO_PUBLIC_COINBASE_CDP_PROJECT_ID ?? "";
 
   return (
     <CDPHooksProvider config={{
