@@ -2,66 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Noise App design system — dark-only trading UI.
+ * Mirrors the "NoiseApp Project" Lovable reference (oklch tokens there),
+ * expressed in HSL here because React Native's style engine only resolves
+ * hex/rgb/hsl colors, not CSS color functions like oklch()/color-mix().
+ */
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --background: 248 24% 7%;
+    --foreground: 0 0% 99%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card: 248 18% 11%;
+    --card-foreground: 0 0% 99%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
+    --elevated: 248 15% 16%;
+    --elevated-foreground: 0 0% 99%;
 
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
+    --popover: 248 18% 11%;
+    --popover-foreground: 0 0% 99%;
 
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
+    --primary: 233 96% 64%;
+    --primary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
+    --secondary: 248 15% 16%;
+    --secondary-foreground: 0 0% 99%;
 
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --muted: 248 15% 16%;
+    --muted-foreground: 245 8% 60%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --accent: 248 13% 19%;
+    --accent-foreground: 0 0% 99%;
 
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 63%;
+    --destructive: 4 90% 58%;
+    --destructive-foreground: 0 0% 99%;
 
-    --radius: 0.625rem;
+    --up: 142 71% 50%;
+    --up-foreground: 150 45% 10%;
+
+    --down: 11 92% 58%;
+    --down-foreground: 0 0% 100%;
+
+    --border: 248 13% 20%;
+    --input: 248 13% 20%;
+    --ring: 233 96% 64%;
+
+    --radius: 0.875rem;
   }
 
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
+  * {
+    border-color: hsl(var(--border));
+  }
 
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
+  html {
+    color-scheme: dark;
+  }
 
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
 
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }

@@ -1,77 +1,36 @@
-import {
-    DarkTheme,
-    DefaultTheme,
-    type Theme,
-} from "expo-router/react-navigation";
+import { DarkTheme, type Theme } from "expo-router/react-navigation";
 
+/**
+ * Noise App is dark-only (see src/global.css for the source-of-truth
+ * HSL tokens used by NativeWind). This mirrors those values for
+ * react-navigation chrome (header bar, native screen background).
+ */
 export const THEME = {
-  light: {
-    background: "hsl(0 0% 100%)",
-    foreground: "hsl(0 0% 3.9%)",
-    card: "hsl(0 0% 100%)",
-    cardForeground: "hsl(0 0% 3.9%)",
-    popover: "hsl(0 0% 100%)",
-    popoverForeground: "hsl(0 0% 3.9%)",
-    primary: "hsl(0 0% 9%)",
-    primaryForeground: "hsl(0 0% 98%)",
-    secondary: "hsl(0 0% 96.1%)",
-    secondaryForeground: "hsl(0 0% 9%)",
-    muted: "hsl(0 0% 96.1%)",
-    mutedForeground: "hsl(0 0% 45.1%)",
-    accent: "hsl(0 0% 96.1%)",
-    accentForeground: "hsl(0 0% 9%)",
-    destructive: "hsl(0 84.2% 60.2%)",
-    border: "hsl(0 0% 89.8%)",
-    input: "hsl(0 0% 89.8%)",
-    ring: "hsl(0 0% 63%)",
-    radius: "0.625rem",
-  },
+  background: "hsl(248 24% 7%)",
+  foreground: "hsl(0 0% 99%)",
+  card: "hsl(248 18% 11%)",
+  cardForeground: "hsl(0 0% 99%)",
+  elevated: "hsl(248 15% 16%)",
+  primary: "hsl(233 96% 64%)",
+  primaryForeground: "hsl(0 0% 100%)",
+  muted: "hsl(248 15% 16%)",
+  mutedForeground: "hsl(245 8% 60%)",
+  destructive: "hsl(4 90% 58%)",
+  up: "hsl(142 71% 50%)",
+  down: "hsl(11 92% 58%)",
+  border: "hsl(248 13% 20%)",
+  ring: "hsl(233 96% 64%)",
+  radius: "0.875rem",
+} as const;
 
-  dark: {
-    background: "hsl(0 0% 3.9%)",
-    foreground: "hsl(0 0% 98%)",
-    card: "hsl(0 0% 3.9%)",
-    cardForeground: "hsl(0 0% 98%)",
-    popover: "hsl(0 0% 3.9%)",
-    popoverForeground: "hsl(0 0% 98%)",
-    primary: "hsl(0 0% 98%)",
-    primaryForeground: "hsl(0 0% 9%)",
-    secondary: "hsl(0 0% 14.9%)",
-    secondaryForeground: "hsl(0 0% 98%)",
-    muted: "hsl(0 0% 14.9%)",
-    mutedForeground: "hsl(0 0% 63.9%)",
-    accent: "hsl(0 0% 14.9%)",
-    accentForeground: "hsl(0 0% 98%)",
-    destructive: "hsl(0 70.9% 59.4%)",
-    border: "hsl(0 0% 14.9%)",
-    input: "hsl(0 0% 14.9%)",
-    ring: "hsl(300 0% 45%)",
-    radius: "0.625rem",
-  },
-};
-
-export const NAV_THEME: Record<"light" | "dark", Theme> = {
-  light: {
-    ...DefaultTheme,
-    colors: {
-      background: THEME.light.background,
-      border: THEME.light.border,
-      card: THEME.light.card,
-      notification: THEME.light.destructive,
-      primary: THEME.light.primary,
-      text: THEME.light.foreground,
-    },
-  },
-
-  dark: {
-    ...DarkTheme,
-    colors: {
-      background: THEME.dark.background,
-      border: THEME.dark.border,
-      card: THEME.dark.card,
-      notification: THEME.dark.destructive,
-      primary: THEME.dark.primary,
-      text: THEME.dark.foreground,
-    },
+export const NAV_THEME: Theme = {
+  ...DarkTheme,
+  colors: {
+    background: THEME.background,
+    border: THEME.border,
+    card: THEME.card,
+    notification: THEME.destructive,
+    primary: THEME.primary,
+    text: THEME.foreground,
   },
 };

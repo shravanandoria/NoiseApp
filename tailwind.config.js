@@ -52,6 +52,21 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+
+        elevated: {
+          DEFAULT: "hsl(var(--elevated))",
+          foreground: "hsl(var(--elevated-foreground))",
+        },
+
+        up: {
+          DEFAULT: "hsl(var(--up))",
+          foreground: "hsl(var(--up-foreground))",
+        },
+
+        down: {
+          DEFAULT: "hsl(var(--down))",
+          foreground: "hsl(var(--down-foreground))",
+        },
       },
 
       borderRadius: {
