@@ -58,7 +58,7 @@ Expo Router v57 uses a different tab API than older Expo Router versions — **d
 - A separate, custom-styled floating pill nav bar is built from `<TabTrigger name="..." asChild><NavTabButton .../></TabTrigger>` outside the `TabList` — `TabTrigger` forwards an `isFocused` prop to the wrapped component for active-state styling.
 - `market/[id].tsx` lives *outside* the `(tabs)` group as a sibling route in the root `Stack`, so pushing it naturally covers the floating tab bar (matches the reference's "hide nav on detail screen" behavior) without extra code.
 
-Root layout (`src/app/_layout.tsx`) also hosts the `CDPHooksProvider` (Coinbase CDP wallet), `SafeAreaProvider`, and the app-wide `Stack`.
+Root layout (`src/app/_layout.tsx`) also hosts the `SafeAreaProvider` and the app-wide `Stack`.
 
 ### Screens
 
@@ -68,7 +68,7 @@ Root layout (`src/app/_layout.tsx`) also hosts the `CDPHooksProvider` (Coinbase 
 
 ### Dummy data
 
-All screens currently render local dummy data from `src/lib/dummy-data/` (`markets.ts`, `price-series.ts`, `account.ts`) — chosen deliberately over wiring the real Polymarket client (see below) so UI work could proceed independently. `price-series.ts` generates a deterministic seeded pseudo-random walk per market+timeframe (same pattern as the design reference), not real price history.
+All screens currently render local dummy data from `src/lib/dummy-data/` (`markets.ts`, `price-series.ts`, `account.ts`) — chosen deliberately over wiring the real Polymarket client (see below) so UI work could proceed independently. `price-series.ts` generates a deterministic seeded pseudo-random walk per market+timeframe (same pattern as the design reference), not real price history. `account.ts` supplies the dummy balance figure shown on the Home screen.
 
 **Not yet done / consciously deferred:**
 - Wiring `src/lib/dummy-data/markets.ts` up to the real `src/lib/polymarket_apis/*` clients.
@@ -84,7 +84,7 @@ The visual design was ported from a Lovable project named **"NoiseApp Project"**
 ```text
 assets/                        Static images and app icons
 src/app/                       Expo Router screens and layouts
-src/app/_layout.tsx             Root Stack, providers (CDP wallet, SafeArea, nav theme)
+src/app/_layout.tsx             Root Stack, providers (SafeArea, nav theme)
 src/app/(tabs)/_layout.tsx      Headless tabs layout + floating nav bar
 src/app/(tabs)/index.tsx        Home screen
 src/app/(tabs)/{search,portfolio,social,profile}.tsx  Placeholder screens
@@ -98,7 +98,7 @@ src/lib/                       Data access and domain utilities
 src/lib/theme.ts               Dark palette as raw hex/hsl (for react-navigation, icon colors, chart colors)
 src/lib/dicebear.ts             DiceBear avatar URL helper
 src/lib/color.ts                hex -> rgba helper (for per-market tint colors)
-src/lib/dummy-data/            Dummy markets, price series, account data
+src/lib/dummy-data/            Dummy markets, price series, and account balance
 src/lib/polymarket_apis/       Polymarket API clients (events, markets, orderbook_pricing, orders, trades, rebates, rewards, profile, search) — not yet wired into the UI
 app.json                       Expo application configuration
 package.json                   Dependencies and npm scripts
@@ -121,7 +121,7 @@ The client lives in `src/lib/polymarket_apis/` (not yet wired into any screen �
 - `markets.ts` — cursor-paginated (`/markets/keyset`) and offset-paginated (`/markets`) market listing, with the full documented filter/sort surface for each (they are not parameter-identical — see the file for which params are keyset-only vs. offset-only).
 - `orderbook_pricing.ts`, `orders.ts`, `trades.ts`, `rebates.ts`, `rewards.ts`, `profile.ts`, `search.ts` — additional Polymarket API surfaces (orders, trading history, rebates/rewards, profile management, search).
 
-No authenticated trading, wallet connection, order placement, or transaction flow is wired into the UI yet, though `@coinbase/cdp-hooks`/`@coinbase/cdp-core` (Coinbase CDP embedded wallet) are integrated at the provider level (`src/app/_layout.tsx`).
+No authenticated trading, order placement, trade-history, wallet, or deposit flow is wired into the UI. The Home screen's Deposit button and the account balance are static UI backed by `src/lib/dummy-data/account.ts`.
 
 ## Current App Configuration
 
@@ -173,6 +173,25 @@ For every subsequent project change:
 5. Never add secrets, private keys, access tokens, or personal user data here.
 
 ## Change Log
+
+### 2026-08-22 — Removed Coinbase CDP wallet, auth, and deposit integration
+
+- Removed all Coinbase CDP integration: the `CDPHooksProvider` in `src/app/_layout.tsx`, the CDP-backed `SignInScreen` (`src/components/auth/`), and the two Expo Router API routes that signed CDP JWTs (`src/app/api/onramp-session+api.ts`, `src/app/api/wallet-balance+api.ts`). Deleted `src/components/ui/input.tsx` (was only used by the now-removed sign-in form).
+- `src/app/(tabs)/profile.tsx` reverted to the plain `ComingSoon` placeholder it was before auth was wired in.
+- `src/components/home/balance-section.tsx` reverted to a static display driven by `src/lib/dummy-data/account.ts` (restored) — the Deposit button no longer does anything, matching the rest of the app's not-yet-implemented trading/wallet flows.
+- Removed the `@coinbase/cdp-core`, `@coinbase/cdp-hooks`, and `@coinbase/cdp-sdk` dependencies, plus the crypto polyfills (`react-native-get-random-values`, `react-native-quick-crypto`, `@ungap/structured-clone`) and `expo-web-browser` that existed solely to support the CDP wallet and its in-app Onramp browser flow. Removed the `react-native-quick-crypto` Expo config plugin from `app.json` and reverted `web.output` from `"server"` back to `"static"` now that no Expo Router API routes remain.
+- Removed the `coinbase-cdp` MCP server entry from `.mcp.json` and cleared the Coinbase CDP key/secret/project-ID entries from the local `.env` (never committed).
+- Reason: product direction dropped wallet/deposit functionality for now: no authenticated trading, wallet, or deposit flow is wired into the UI.
+
+### 2026-08-22 — Working USD deposits via Coinbase Onramp, and a real wallet balance
+
+- Wired the Home screen's Deposit button (`src/components/home/balance-section.tsx`) to a real Coinbase Onramp flow: signed-in users can buy USDC on Base with USD, delivered to their CDP embedded wallet.
+- Added `src/app/api/onramp-session+api.ts`, a new Expo Router API route (server-only, excluded from the client bundle) that signs a CDP JWT with the server-only `coinbase_cdp_api_key_id`/`coinbase_cdp_api_key_secret` env vars and mints a Coinbase Onramp session token — chosen over standing up a separate backend since Expo Router already provides this. The client opens the resulting `pay.coinbase.com` URL via `expo-web-browser`'s `openBrowserAsync` (not a `WebView` — Coinbase's widget needs WebAuthn support a WebView can't provide).
+- Added `src/app/api/wallet-balance+api.ts`, the same server-JWT pattern, calling CDP's List EVM Token Balances API to return the signed-in user's real USDC balance on Base. The Home screen now fetches and displays this on mount and after a deposit, instead of the old dummy figure — the fabricated 24h change/% line was removed rather than left next to a real number with no real data behind it. Deleted the now-dead `src/lib/dummy-data/account.ts`.
+- Added the `@coinbase/cdp-sdk` dependency — only its `auth` subpath (`generateJwt`) is used; importing the top-level `CdpClient` broke the Metro bundle (it eagerly pulls in an optional `@x402/core/client` dependency that isn't installed), so both routes hand-roll the REST calls with `generateJwt` + `fetch` instead of using `CdpClient` directly.
+- Changed `app.json`'s `web.output` from `"static"` to `"server"`, required for Expo Router to export API routes; production release builds will additionally need an `origin` set under the `expo-router` plugin once the app is deployed (see "Wallet & Deposits" above).
+- Verified both routes end-to-end against Coinbase's real APIs (JWT signing, session-token creation, and token-balance listing), not mocked.
+- Left for later: removing the unused `EXPO_PUBLIC_COINBASE_CDP_API_KEY`/`_SECRET` env entries, Offramp (cash out), and a real balance-change (24h/7d) figure once a historical data source exists.
 
 ### 2026-08-17 — Home and Market Details screens, dark-only design system
 
